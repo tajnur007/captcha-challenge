@@ -1,7 +1,42 @@
+import { useState } from 'react';
+
+enum ButtonAction {
+	CONTINUE = 'Continue',
+	VALIDATE = 'Validate',
+}
+
 function App() {
+	const [instruction, setInstruction] = useState<string>('Take Selfie');
+	const [btnAction, setBbtnAction] = useState<ButtonAction>(
+		ButtonAction.CONTINUE
+	);
+
+	const handleButtonClick = () => {
+		if (btnAction === ButtonAction.CONTINUE) {
+			handleContinueAction();
+		} else {
+			handleValidateAction();
+		}
+	};
+
+	const handleContinueAction = () => {};
+	const handleValidateAction = () => {};
+
 	return (
-		<div className="w-screen h-screen overflow-y-auto overflow-x-hidden flex flex-col justify-center items-center">
-			<h1 className="text-xl font-medium">Captcha Challenge</h1>
+		<div className="bg-[#16295d] w-screen h-screen overflow-y-auto overflow-x-hidden flex flex-col justify-center items-center">
+			<div className="p-20 bg-white w-1/2 h-2/3 flex flex-col justify-center items-center">
+				<p className="text-blue-700 text-3xl text-center">{instruction}</p>
+				<video
+					src=""
+					className="my-5 border border-solid border-gray-200 w-4/5 h-2/3"
+				/>
+				<button
+					className="uppercase bg-[#de9b0d] text-white p-2 w-40 cursor-pointer transition-all ease-linear hover:bg-[#de9c0de4] hover:tracking-wider"
+					onClick={handleButtonClick}
+				>
+					{btnAction}
+				</button>
+			</div>
 		</div>
 	);
 }
