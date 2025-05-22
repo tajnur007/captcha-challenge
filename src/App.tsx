@@ -1,58 +1,87 @@
-import { useEffect, useState } from 'react';
-
-enum ButtonAction {
-	CONTINUE = 'Continue',
-	VALIDATE = 'Validate',
-}
+import { useEffect, useRef, useState } from 'react';
 
 function App() {
-	const [instruction, setInstruction] = useState<string>('Take Selfie');
-	const [btnAction, setBbtnAction] = useState<ButtonAction>(
-		ButtonAction.CONTINUE
-	);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+
+	const [isImageCaptured, setIsImageCaptured] = useState<boolean>(false);
 
 	useEffect(() => {
-		const videoElement = document.getElementById('video') as HTMLVideoElement;
-		if (videoElement) {
-			navigator.mediaDevices
-				.getUserMedia({ video: true })
-				.then((stream) => {
-					videoElement.srcObject = stream;
-				})
-				.catch((error) => {
-					console.error(
-						'Facing issue while trying to access the webcam!',
-						error
-					);
-				});
-		}
+		navigator.mediaDevices
+			.getUserMedia({ video: true })
+			.then((stream) => {
+				if (videoRef.current) {
+					videoRef.current.srcObject = stream;
+					videoRef.current.play();
+				}
+			})
+			.catch((error) => {
+				console.error('Facing issue while trying to access the webcam!', error);
+			});
 	}, []);
 
 	const handleButtonClick = () => {
-		if (btnAction === ButtonAction.CONTINUE) {
-			handleContinueAction();
-		} else {
+		if (isImageCaptured) {
 			handleValidateAction();
+		} else {
+			handleContinueAction();
 		}
 	};
 
-	const handleContinueAction = () => {};
+	const handleContinueAction = () => {
+		if (containerRef.current && videoRef.current && canvasRef.current) {
+			canvasRef.current.setAttribute(
+				'height',
+				containerRef.current.clientHeight + 'px'
+			);
+			canvasRef.current.setAttribute(
+				'width',
+				containerRef.current.clientWidth + 'px'
+			);
+
+			const { videoHeight, videoWidth } = videoRef.current;
+			const contextOfCanvas = canvasRef.current.getContext('2d');
+			contextOfCanvas?.drawImage(
+				videoRef.current,
+				0,
+				0,
+				videoWidth,
+				videoHeight
+			);
+
+			setIsImageCaptured(true);
+		}
+	};
+
 	const handleValidateAction = () => {};
 
 	return (
 		<div className="bg-[#16295d] w-screen h-screen overflow-y-auto overflow-x-hidden flex flex-col justify-center items-center">
 			<div className="p-20 bg-white w-1/2 h-2/3 flex flex-col justify-center items-center">
-				<p className="text-blue-700 text-3xl text-center">{instruction}</p>
-				<video
-					autoPlay
-					id="video"
-					className="my-5 border border-solid border-gray-200 w-4/5"
-				/>
+				{/* Instruction  */}
+				<p className="text-blue-700 text-3xl text-center">
+					{isImageCaptured ? 'Validate Captcha' : 'Take Selfie'}
+				</p>
+
+				{/* Camera zone  */}
+				<div ref={containerRef} className="relative my-5 w-4/5 flex">
+					<video ref={videoRef} id="video" className="w-full" />
+					<canvas
+						ref={canvasRef}
+						id="image"
+						height={0}
+						width={0}
+						className="absolute top-0 left-0"
+					/>
+				</div>
+
+				{/* Action  */}
 				<button
 					className="uppercase bg-[#de9b0d] text-white p-2 w-40 cursor-pointer transition-all ease-linear hover:bg-[#de9c0de4] hover:tracking-wider"
 					onClick={handleButtonClick}
 				>
-					{btnAction}
+					{isImageCaptured ? 'Validate' : 'Continue'}
 				</button>
 			</div>
 		</div>
