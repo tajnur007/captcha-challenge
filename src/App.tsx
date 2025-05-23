@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+	createContext,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+	type ReactNode,
+} from 'react';
 
 type Array2D<T> = T[][];
 
@@ -6,18 +13,32 @@ const SHAPES_SVG: ReactNode[] = [
 	// No shape
 	<></>,
 	// Circle
-	<svg fill="#ffffffdd" width="24px" height="24px" viewBox="0 0 15 15">
+	<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 15 15">
 		<path d="M14,7.5c0,3.5899-2.9101,6.5-6.5,6.5S1,11.0899,1,7.5S3.9101,1,7.5,1S14,3.9101,14,7.5z" />
 	</svg>,
 	// Triangle
-	<svg fill="#ffffffdd" width="24px" height="24px" viewBox="0 0 24 24">
+	<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 24 24">
 		<path d="M21.9,19.3l-9-15.6c-0.1-0.1-0.2-0.2-0.3-0.3c-0.5-0.3-1.1-0.2-1.4,0.3l-9,15.6C2,19.4,2,19.6,2,19.8c0,0.6,0.4,1,1,1h18c0.2,0,0.3,0,0.5-0.1C22,20.4,22.1,19.8,21.9,19.3z" />
 	</svg>,
 	// Rectangle
-	<svg fill="#ffffffdd" width="24px" height="24px" viewBox="0 0 24 24">
+	<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 24 24">
 		<path d="m0 0h24v24h-24z" />
 	</svg>,
 ];
+
+interface BoxDataContextValue {
+	selectedPositions: string[];
+	handleBoxClick: (position: string) => void;
+}
+
+const CONTEXT_DEFAULT_VALUE = {
+	selectedPositions: [],
+	handleBoxClick: () => null,
+};
+
+const BoxDataContext = createContext<BoxDataContextValue>(
+	CONTEXT_DEFAULT_VALUE
+);
 
 function App() {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -87,35 +108,37 @@ function App() {
 	};
 
 	return (
-		<div className="bg-[#16295d] w-screen h-screen overflow-y-auto overflow-x-hidden flex flex-col justify-center items-center">
-			<div className="p-20 bg-white w-1/2 h-2/3 flex flex-col justify-center items-center">
-				{/* Instruction  */}
-				<p className="text-blue-700 text-3xl text-center">
-					{isImageCaptured ? 'Validate Captcha' : 'Take Selfie'}
-				</p>
+		<BoxDataContext.Provider value={{ selectedPositions, handleBoxClick }}>
+			<div className="bg-[#16295d] w-screen h-screen overflow-y-auto overflow-x-hidden flex flex-col justify-center items-center">
+				<div className="p-20 bg-white w-1/2 h-2/3 flex flex-col justify-center items-center">
+					{/* Instruction  */}
+					<p className="text-blue-700 text-3xl text-center">
+						{isImageCaptured ? 'Validate Captcha' : 'Take Selfie'}
+					</p>
 
-				{/* Camera zone  */}
-				<div ref={containerRef} className="relative my-5 w-4/5 flex">
-					<video ref={videoRef} id="video" className="w-full" />
-					<canvas
-						ref={canvasRef}
-						id="image"
-						height={0}
-						width={0}
-						className="absolute top-0 left-0"
-					/>
-					<SquareFrame boxData={boxData} onBoxClick={handleBoxClick} />
+					{/* Camera zone  */}
+					<div ref={containerRef} className="relative my-5 w-4/5 flex">
+						<video ref={videoRef} id="video" className="w-full" />
+						<canvas
+							ref={canvasRef}
+							id="image"
+							height={0}
+							width={0}
+							className="absolute top-0 left-0"
+						/>
+						<SquareFrame boxData={boxData} />
+					</div>
+
+					{/* Action  */}
+					<button
+						className="uppercase bg-[#de9b0d] text-white p-2 w-40 cursor-pointer transition-all ease-linear hover:bg-[#de9c0de4] hover:tracking-wider"
+						onClick={handleButtonClick}
+					>
+						{isImageCaptured ? 'Validate' : 'Continue'}
+					</button>
 				</div>
-
-				{/* Action  */}
-				<button
-					className="uppercase bg-[#de9b0d] text-white p-2 w-40 cursor-pointer transition-all ease-linear hover:bg-[#de9c0de4] hover:tracking-wider"
-					onClick={handleButtonClick}
-				>
-					{isImageCaptured ? 'Validate' : 'Continue'}
-				</button>
 			</div>
-		</div>
+		</BoxDataContext.Provider>
 	);
 }
 
@@ -123,10 +146,9 @@ export default App;
 
 interface SquareFrameProps {
 	boxData: Array2D<number>;
-	onBoxClick: (position: string) => void;
 }
 
-function SquareFrame({ boxData, onBoxClick }: SquareFrameProps) {
+function SquareFrame({ boxData }: SquareFrameProps) {
 	const squareRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -163,7 +185,6 @@ function SquareFrame({ boxData, onBoxClick }: SquareFrameProps) {
 								key={'shape-' + colIdx}
 								type={shapeType}
 								position={rowIdx + ',' + colIdx}
-								onBoxClick={onBoxClick}
 							/>
 						))}
 					</>
@@ -176,14 +197,18 @@ function SquareFrame({ boxData, onBoxClick }: SquareFrameProps) {
 interface ShapeBoxProps {
 	type: number;
 	position: string;
-	onBoxClick: (position: string) => void;
 }
 
-function ShapeBox({ type, position, onBoxClick }: ShapeBoxProps) {
+function ShapeBox({ type, position }: ShapeBoxProps) {
+	const { selectedPositions, handleBoxClick } = useContext(BoxDataContext);
+	const isBoxSelected = selectedPositions.includes(position);
+
 	return (
 		<div
-			className="w-8 h-8 flex justify-center items-center border border-solid border-white cursor-pointer"
-			onClick={() => onBoxClick(position)}
+			className={`w-8 h-8 flex justify-center items-center border border-solid border-white cursor-pointer ${
+				isBoxSelected ? 'text-amber-600' : 'text-[#ffffffdd]'
+			}`}
+			onClick={() => handleBoxClick(position)}
 		>
 			{SHAPES_SVG[type]}
 		</div>
