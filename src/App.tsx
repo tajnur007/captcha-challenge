@@ -26,6 +26,7 @@ function App() {
 
 	const [isImageCaptured, setIsImageCaptured] = useState<boolean>(false);
 	const [boxData, setBoxData] = useState<Array2D<number>>([]);
+	const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
 
 	useEffect(() => {
 		navigator.mediaDevices
@@ -77,6 +78,14 @@ function App() {
 
 	const handleValidateAction = () => {};
 
+	const handleBoxClick = (position: string) => {
+		if (selectedPositions.includes(position)) {
+			setSelectedPositions((prev) => prev.filter((v) => v !== position));
+		} else {
+			setSelectedPositions((prev) => [...prev, position]);
+		}
+	};
+
 	return (
 		<div className="bg-[#16295d] w-screen h-screen overflow-y-auto overflow-x-hidden flex flex-col justify-center items-center">
 			<div className="p-20 bg-white w-1/2 h-2/3 flex flex-col justify-center items-center">
@@ -95,7 +104,7 @@ function App() {
 						width={0}
 						className="absolute top-0 left-0"
 					/>
-					<SquareFrame boxData={boxData} />
+					<SquareFrame boxData={boxData} onBoxClick={handleBoxClick} />
 				</div>
 
 				{/* Action  */}
@@ -112,7 +121,12 @@ function App() {
 
 export default App;
 
-function SquareFrame({ boxData }: { boxData: Array2D<number> }) {
+interface SquareFrameProps {
+	boxData: Array2D<number>;
+	onBoxClick: (position: string) => void;
+}
+
+function SquareFrame({ boxData, onBoxClick }: SquareFrameProps) {
 	const squareRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -141,11 +155,16 @@ function SquareFrame({ boxData }: { boxData: Array2D<number> }) {
 				boxData.length ? 'bg-[#ffffff55]' : ''
 			}`}
 		>
-			{boxData.map((row) => {
+			{boxData.map((row, rowIdx) => {
 				return (
 					<>
-						{row.map((shapeType, index) => (
-							<Shape key={'shape-' + index} type={shapeType} />
+						{row.map((shapeType, colIdx) => (
+							<ShapeBox
+								key={'shape-' + colIdx}
+								type={shapeType}
+								position={rowIdx + ',' + colIdx}
+								onBoxClick={onBoxClick}
+							/>
 						))}
 					</>
 				);
@@ -154,9 +173,18 @@ function SquareFrame({ boxData }: { boxData: Array2D<number> }) {
 	);
 }
 
-function Shape({ type }: { type: number }) {
+interface ShapeBoxProps {
+	type: number;
+	position: string;
+	onBoxClick: (position: string) => void;
+}
+
+function ShapeBox({ type, position, onBoxClick }: ShapeBoxProps) {
 	return (
-		<div className="w-8 h-8 flex justify-center items-center border border-solid border-white cursor-pointer">
+		<div
+			className="w-8 h-8 flex justify-center items-center border border-solid border-white cursor-pointer"
+			onClick={() => onBoxClick(position)}
+		>
 			{SHAPES_SVG[type]}
 		</div>
 	);
