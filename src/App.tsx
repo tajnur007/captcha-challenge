@@ -113,8 +113,30 @@ function App() {
 export default App;
 
 function SquareFrame({ boxData }: { boxData: Array2D<number> }) {
+	const squareRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const intervalRef = setInterval(() => {
+			if (squareRef.current && !boxData.length) {
+				const parentElement = squareRef.current.parentElement as HTMLDivElement;
+				const parentHeight = parentElement.clientHeight;
+				const parentWidth = parentElement.clientWidth;
+				const squareWidth = 162;
+
+				const positionX = generateRandomNumber(0, parentWidth - squareWidth);
+				const positionY = generateRandomNumber(0, parentHeight - squareWidth);
+
+				squareRef.current.style.left = positionX + 'px';
+				squareRef.current.style.top = positionY + 'px';
+			}
+		}, 3000);
+
+		return () => clearInterval(intervalRef);
+	}, [boxData.length]);
+
 	return (
 		<div
+			ref={squareRef}
 			className={`w-[162px] h-[162px] grid grid-cols-5 absolute top-10 left-10 z-20 border border-solid border-white ${
 				boxData.length ? 'bg-[#ffffff55]' : ''
 			}`}
@@ -149,8 +171,6 @@ function generateBoxData(): Array2D<number> {
 	return data;
 }
 
-function generateRandomNumber(): number {
-	const min = 0;
-	const max = 4;
+function generateRandomNumber(min = 0, max = 4): number {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
