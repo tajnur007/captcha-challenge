@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 
+type Array2D<T> = T[][];
+
 function App() {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	const [isImageCaptured, setIsImageCaptured] = useState<boolean>(false);
+	const [boxData, setBoxData] = useState<Array2D<number>>([]);
 
 	useEffect(() => {
 		navigator.mediaDevices
@@ -51,6 +54,7 @@ function App() {
 			);
 
 			setIsImageCaptured(true);
+			setBoxData(generateBoxData());
 		}
 	};
 
@@ -74,6 +78,7 @@ function App() {
 						width={0}
 						className="absolute top-0 left-0"
 					/>
+					<SquareFrame boxData={boxData} />
 				</div>
 
 				{/* Action  */}
@@ -89,3 +94,42 @@ function App() {
 }
 
 export default App;
+
+function SquareFrame({ boxData }: { boxData: Array2D<number> }) {
+	return (
+		<div className="w-[162px] h-[162px] grid grid-cols-5 absolute top-3 left-3 z-20 border border-solid border-white">
+			{boxData.map((row) => {
+				return (
+					<>
+						{row.map((shapeType, index) => (
+							<Shape key={'shape-' + index} type={shapeType} />
+						))}
+					</>
+				);
+			})}
+		</div>
+	);
+}
+
+function Shape({ type }: { type: number }) {
+	return (
+		<div className="p-2 w-8 h-8 flex justify-center items-center border border-solid border-white cursor-pointer">
+			{type}
+		</div>
+	);
+}
+
+function generateBoxData(): Array2D<number> {
+	const data: Array2D<number> = [];
+	for (let i = 0; i < 5; i++) {
+		const row = new Array(5).fill(true).map(() => generateRandomNumber());
+		data.push(row);
+	}
+	return data;
+}
+
+function generateRandomNumber(): number {
+	const min = 0;
+	const max = 4;
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
