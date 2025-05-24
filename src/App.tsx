@@ -1,262 +1,45 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
-
-type Array2D<T> = T[][];
-
-const SHAPES = [
-	{
-		id: 0,
-		name: 'No shape',
-		shape: <></>,
-	},
-	{
-		id: 1,
-		name: 'Circle',
-		shape: (
-			<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 15 15">
-				<path d="M14,7.5c0,3.5899-2.9101,6.5-6.5,6.5S1,11.0899,1,7.5S3.9101,1,7.5,1S14,3.9101,14,7.5z" />
-			</svg>
-		),
-	},
-	{
-		id: 2,
-		name: 'Triangle',
-		shape: (
-			<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 24 24">
-				<path d="M21.9,19.3l-9-15.6c-0.1-0.1-0.2-0.2-0.3-0.3c-0.5-0.3-1.1-0.2-1.4,0.3l-9,15.6C2,19.4,2,19.6,2,19.8c0,0.6,0.4,1,1,1h18c0.2,0,0.3,0,0.5-0.1C22,20.4,22.1,19.8,21.9,19.3z" />
-			</svg>
-		),
-	},
-	{
-		id: 3,
-		name: 'Rectangle',
-		shape: (
-			<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 24 24">
-				<path d="m0 0h24v24h-24z" />
-			</svg>
-		),
-	},
-];
-
-interface BoxDataContextValue {
-	selectedPositions: string[];
-	handleBoxClick: (position: string) => void;
-}
-
-const CONTEXT_DEFAULT_VALUE = {
-	selectedPositions: [],
-	handleBoxClick: () => null,
-};
-
-const BoxDataContext = createContext<BoxDataContextValue>(
-	CONTEXT_DEFAULT_VALUE
-);
+import { useCaptchaValidation } from './hooks/use-captcha-validation';
+import BoxDataProvider from './contexts/box-data-context/provider';
+import Instruction from './components/instruction';
+import CameraZone from './components/camera-zone';
+import ActionButton from './components/action-button';
 
 function App() {
-	const containerRef = useRef<HTMLDivElement>(null);
-	const videoRef = useRef<HTMLVideoElement>(null);
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-
-	const [isImageCaptured, setIsImageCaptured] = useState<boolean>(false);
-	const [boxData, setBoxData] = useState<Array2D<number>>([]);
-	const [targetShapeId, setTargetShapeId] = useState<number>(0);
-	const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
-
-	useEffect(() => {
-		navigator.mediaDevices
-			.getUserMedia({ video: true })
-			.then((stream) => {
-				if (videoRef.current) {
-					videoRef.current.srcObject = stream;
-					videoRef.current.play();
-				}
-			})
-			.catch((error) => {
-				console.error('Facing issue while trying to access the webcam!', error);
-			});
-	}, []);
-
-	const handleButtonClick = () => {
-		if (isImageCaptured) {
-			handleValidateAction();
-		} else {
-			handleContinueAction();
-		}
-	};
-
-	const handleContinueAction = () => {
-		if (containerRef.current && videoRef.current && canvasRef.current) {
-			canvasRef.current.setAttribute(
-				'height',
-				containerRef.current.clientHeight + 'px'
-			);
-			canvasRef.current.setAttribute(
-				'width',
-				containerRef.current.clientWidth + 'px'
-			);
-
-			const { videoHeight, videoWidth } = videoRef.current;
-			const contextOfCanvas = canvasRef.current.getContext('2d');
-			contextOfCanvas?.drawImage(
-				videoRef.current,
-				0,
-				0,
-				videoWidth,
-				videoHeight
-			);
-
-			setIsImageCaptured(true);
-			setBoxData(generateBoxData());
-			setTargetShapeId(generateRandomNumber(1, 3));
-		}
-	};
-
-	const handleValidateAction = () => {
-		const targetedShapePositions: string[] = [];
-
-		boxData.forEach((row, rowIdx) => {
-			row.forEach((col, colIdx) => {
-				if (col === targetShapeId) {
-					targetedShapePositions.push(rowIdx + ',' + colIdx);
-				}
-			});
-		});
-
-		const isPositionInTargetedShapePositions = (pos: string) =>
-			targetedShapePositions.includes(pos);
-		const isValid =
-			selectedPositions.length === targetedShapePositions.length &&
-			selectedPositions.every(isPositionInTargetedShapePositions);
-
-		console.log('isValid:::', isValid);
-	};
-
-	const handleBoxClick = (position: string) => {
-		if (selectedPositions.includes(position)) {
-			setSelectedPositions((prev) => prev.filter((v) => v !== position));
-		} else {
-			setSelectedPositions((prev) => [...prev, position]);
-		}
-	};
+	const {
+		containerRef,
+		videoRef,
+		canvasRef,
+		isImageCaptured,
+		targetShapeId,
+		providerValue,
+		boxData,
+		handleActionButtonClick,
+	} = useCaptchaValidation();
 
 	return (
-		<BoxDataContext.Provider value={{ selectedPositions, handleBoxClick }}>
+		<BoxDataProvider value={providerValue}>
 			<div className="bg-[#16295d] w-screen h-screen overflow-y-auto overflow-x-hidden flex flex-col justify-center items-center">
 				<div className="p-20 bg-white w-1/2 h-2/3 flex flex-col justify-center items-center">
-					{/* Instruction  */}
-					<p className="text-blue-700 text-3xl text-center">
-						{isImageCaptured
-							? `Select ${SHAPES[targetShapeId].name}`
-							: 'Take Selfie'}
-					</p>
+					<Instruction
+						isImageCaptured={isImageCaptured}
+						targetShapeId={targetShapeId}
+					/>
 
-					{/* Camera zone  */}
-					<div ref={containerRef} className="relative my-5 w-4/5 flex">
-						<video ref={videoRef} id="video" className="w-full" />
-						<canvas
-							ref={canvasRef}
-							id="image"
-							height={0}
-							width={0}
-							className="absolute top-0 left-0"
-						/>
-						<SquareFrame boxData={boxData} />
-					</div>
+					<CameraZone
+						containerRef={containerRef}
+						videoRef={videoRef}
+						canvasRef={canvasRef}
+						boxData={boxData}
+					/>
 
-					{/* Action  */}
-					<button
-						className="uppercase bg-[#de9b0d] text-white p-2 w-40 cursor-pointer transition-all ease-linear hover:bg-[#de9c0de4] hover:tracking-wider"
-						onClick={handleButtonClick}
-					>
-						{isImageCaptured ? 'Validate' : 'Continue'}
-					</button>
+					<ActionButton
+						isImageCaptured={isImageCaptured}
+						handleActionButtonClick={handleActionButtonClick}
+					/>
 				</div>
 			</div>
-		</BoxDataContext.Provider>
+		</BoxDataProvider>
 	);
 }
 
 export default App;
-
-interface SquareFrameProps {
-	boxData: Array2D<number>;
-}
-
-function SquareFrame({ boxData }: SquareFrameProps) {
-	const squareRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		const intervalRef = setInterval(() => {
-			if (squareRef.current && !boxData.length) {
-				const parentElement = squareRef.current.parentElement as HTMLDivElement;
-				const parentHeight = parentElement.clientHeight;
-				const parentWidth = parentElement.clientWidth;
-				const squareWidth = 162;
-
-				const positionX = generateRandomNumber(0, parentWidth - squareWidth);
-				const positionY = generateRandomNumber(0, parentHeight - squareWidth);
-
-				squareRef.current.style.left = positionX + 'px';
-				squareRef.current.style.top = positionY + 'px';
-			}
-		}, 3000);
-
-		return () => clearInterval(intervalRef);
-	}, [boxData.length]);
-
-	return (
-		<div
-			ref={squareRef}
-			className={`w-[162px] h-[162px] grid grid-cols-5 absolute top-10 left-10 z-20 border border-solid border-white ${
-				boxData.length ? 'bg-[#ffffff55]' : ''
-			}`}
-		>
-			{boxData.map((row, rowIdx) => {
-				return (
-					<>
-						{row.map((shapeType, colIdx) => (
-							<ShapeBox
-								key={'shape-' + colIdx}
-								type={shapeType}
-								position={rowIdx + ',' + colIdx}
-							/>
-						))}
-					</>
-				);
-			})}
-		</div>
-	);
-}
-
-interface ShapeBoxProps {
-	type: number;
-	position: string;
-}
-
-function ShapeBox({ type, position }: ShapeBoxProps) {
-	const { selectedPositions, handleBoxClick } = useContext(BoxDataContext);
-	const isBoxSelected = selectedPositions.includes(position);
-
-	return (
-		<div
-			className={`w-8 h-8 flex justify-center items-center border border-solid border-white cursor-pointer ${
-				isBoxSelected ? 'text-amber-600' : 'text-[#ffffffdd]'
-			}`}
-			onClick={() => handleBoxClick(position)}
-		>
-			{SHAPES[type]?.shape}
-		</div>
-	);
-}
-
-function generateBoxData(): Array2D<number> {
-	const data: Array2D<number> = [];
-	for (let i = 0; i < 5; i++) {
-		const row = new Array(5).fill(true).map(() => generateRandomNumber());
-		data.push(row);
-	}
-	return data;
-}
-
-function generateRandomNumber(min = 0, max = 4): number {
-	return Math.floor(Math.random() * (max - min + 1) + min);
-}
