@@ -1,29 +1,40 @@
-import {
-	createContext,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-	type ReactNode,
-} from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 type Array2D<T> = T[][];
 
-const SHAPES_SVG: ReactNode[] = [
-	// No shape
-	<></>,
-	// Circle
-	<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 15 15">
-		<path d="M14,7.5c0,3.5899-2.9101,6.5-6.5,6.5S1,11.0899,1,7.5S3.9101,1,7.5,1S14,3.9101,14,7.5z" />
-	</svg>,
-	// Triangle
-	<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 24 24">
-		<path d="M21.9,19.3l-9-15.6c-0.1-0.1-0.2-0.2-0.3-0.3c-0.5-0.3-1.1-0.2-1.4,0.3l-9,15.6C2,19.4,2,19.6,2,19.8c0,0.6,0.4,1,1,1h18c0.2,0,0.3,0,0.5-0.1C22,20.4,22.1,19.8,21.9,19.3z" />
-	</svg>,
-	// Rectangle
-	<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 24 24">
-		<path d="m0 0h24v24h-24z" />
-	</svg>,
+const SHAPES = [
+	{
+		id: 0,
+		name: 'No shape',
+		shape: <></>,
+	},
+	{
+		id: 1,
+		name: 'Circle',
+		shape: (
+			<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 15 15">
+				<path d="M14,7.5c0,3.5899-2.9101,6.5-6.5,6.5S1,11.0899,1,7.5S3.9101,1,7.5,1S14,3.9101,14,7.5z" />
+			</svg>
+		),
+	},
+	{
+		id: 2,
+		name: 'Triangle',
+		shape: (
+			<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 24 24">
+				<path d="M21.9,19.3l-9-15.6c-0.1-0.1-0.2-0.2-0.3-0.3c-0.5-0.3-1.1-0.2-1.4,0.3l-9,15.6C2,19.4,2,19.6,2,19.8c0,0.6,0.4,1,1,1h18c0.2,0,0.3,0,0.5-0.1C22,20.4,22.1,19.8,21.9,19.3z" />
+			</svg>
+		),
+	},
+	{
+		id: 3,
+		name: 'Rectangle',
+		shape: (
+			<svg fill="currentcolor" width="24px" height="24px" viewBox="0 0 24 24">
+				<path d="m0 0h24v24h-24z" />
+			</svg>
+		),
+	},
 ];
 
 interface BoxDataContextValue {
@@ -47,6 +58,7 @@ function App() {
 
 	const [isImageCaptured, setIsImageCaptured] = useState<boolean>(false);
 	const [boxData, setBoxData] = useState<Array2D<number>>([]);
+	const [targetShapeId, setTargetShapeId] = useState<number>(0);
 	const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
 
 	useEffect(() => {
@@ -94,10 +106,29 @@ function App() {
 
 			setIsImageCaptured(true);
 			setBoxData(generateBoxData());
+			setTargetShapeId(generateRandomNumber(1, 3));
 		}
 	};
 
-	const handleValidateAction = () => {};
+	const handleValidateAction = () => {
+		const targetedShapePositions: string[] = [];
+
+		boxData.forEach((row, rowIdx) => {
+			row.forEach((col, colIdx) => {
+				if (col === targetShapeId) {
+					targetedShapePositions.push(rowIdx + ',' + colIdx);
+				}
+			});
+		});
+
+		const isPositionInTargetedShapePositions = (pos: string) =>
+			targetedShapePositions.includes(pos);
+		const isValid =
+			selectedPositions.length === targetedShapePositions.length &&
+			selectedPositions.every(isPositionInTargetedShapePositions);
+
+		console.log('isValid:::', isValid);
+	};
 
 	const handleBoxClick = (position: string) => {
 		if (selectedPositions.includes(position)) {
@@ -113,7 +144,9 @@ function App() {
 				<div className="p-20 bg-white w-1/2 h-2/3 flex flex-col justify-center items-center">
 					{/* Instruction  */}
 					<p className="text-blue-700 text-3xl text-center">
-						{isImageCaptured ? 'Validate Captcha' : 'Take Selfie'}
+						{isImageCaptured
+							? `Select ${SHAPES[targetShapeId].name}`
+							: 'Take Selfie'}
 					</p>
 
 					{/* Camera zone  */}
@@ -210,7 +243,7 @@ function ShapeBox({ type, position }: ShapeBoxProps) {
 			}`}
 			onClick={() => handleBoxClick(position)}
 		>
-			{SHAPES_SVG[type]}
+			{SHAPES[type]?.shape}
 		</div>
 	);
 }
