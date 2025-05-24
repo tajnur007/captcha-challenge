@@ -8,7 +8,10 @@ function CameraZone({
 	boxData,
 }: CameraZoneProps) {
 	return (
-		<div ref={containerRef} className="relative my-5 w-4/5 flex">
+		<div
+			ref={containerRef}
+			className="relative my-5 w-[280px] h-[210px] md:w-[380px] md:h-[285px] lg:w-[480px] lg:h-[360px] xl:w-[560px] xl:h-[420px] 2xl:w-[640px] 2xl:h-[480px]"
+		>
 			<video ref={videoRef} className="w-full" />
 			<canvas
 				ref={canvasRef}

@@ -19,7 +19,7 @@ function App() {
 	return (
 		<BoxDataProvider value={providerValue}>
 			<div className="bg-[#16295d] w-screen h-screen overflow-y-auto overflow-x-hidden flex flex-col justify-center items-center">
-				<div className="p-20 bg-white w-1/2 h-2/3 flex flex-col justify-center items-center">
+				<div className="px-6 py-3 md:px-10 md:py-5 lg:px-12 lg:py-6 xl:px-16 xl:py-8 2xl:px-20 2xl:py-10 bg-white flex flex-col justify-center items-center">
 					<Instruction
 						isImageCaptured={isImageCaptured}
 						targetShapeId={targetShapeId}
