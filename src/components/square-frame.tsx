@@ -1,12 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { generateRandomNumber } from '../utils/helpers';
 import type { SquareFrameProps } from '../types/component-props';
 import ShapeBox from './shape-box';
+import { SHAPE_COLORS } from '../utils/constants';
 
 function SquareFrame({ boxData }: SquareFrameProps) {
 	const squareRef = useRef<HTMLDivElement>(null);
+	const [shapeColor, setShapeColor] = useState<string>(SHAPE_COLORS[0]);
 
 	useEffect(() => {
+		const randomIndex = generateRandomNumber(0, 2);
+		setShapeColor(SHAPE_COLORS[randomIndex]);
+
 		const intervalRef = setInterval(() => {
 			if (squareRef.current && !boxData.length) {
 				const parentElement = squareRef.current.parentElement as HTMLDivElement;
@@ -39,6 +44,7 @@ function SquareFrame({ boxData }: SquareFrameProps) {
 							<ShapeBox
 								key={'shape-' + colIdx}
 								type={shapeType}
+								shapeColor={shapeColor}
 								position={rowIdx + ',' + colIdx}
 							/>
 						))}

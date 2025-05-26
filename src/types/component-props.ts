@@ -29,6 +29,7 @@ export interface SquareFrameProps {
 
 export interface ShapeBoxProps {
 	type: number;
+	shapeColor: string;
 	position: string;
 }
 

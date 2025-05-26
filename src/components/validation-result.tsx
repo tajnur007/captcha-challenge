@@ -6,9 +6,9 @@ function ValidationResult({
 }: ValidationResultProps) {
 	return (
 		<p
-			className={`${
+			className={`text-xl h-10 ${
 				isValidationSuccess ? 'text-green-500' : 'text-red-500'
-			} text-xl`}
+			}`}
 		>
 			{isValidationSuccess
 				? 'Verification successful.'

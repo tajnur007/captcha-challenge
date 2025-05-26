@@ -3,6 +3,8 @@ export const CONTEXT_DEFAULT_VALUE = {
 	handleBoxClick: () => null,
 };
 
+export const SHAPE_COLORS = ['text-red-500', 'text-green-500', 'text-blue-500'];
+
 export const SHAPES = [
 	{
 		id: 0,
