@@ -3,6 +3,7 @@ import BoxDataProvider from './contexts/box-data-context/provider';
 import Instruction from './components/instruction';
 import CameraZone from './components/camera-zone';
 import ActionButton from './components/action-button';
+import ValidationResult from './components/validation-result';
 
 function App() {
 	const {
@@ -10,10 +11,12 @@ function App() {
 		videoRef,
 		canvasRef,
 		isImageCaptured,
+		isValidationSuccess,
 		targetShapeId,
 		providerValue,
 		boxData,
 		handleActionButtonClick,
+		resetProcess,
 	} = useCaptchaValidation();
 
 	return (
@@ -32,10 +35,17 @@ function App() {
 						boxData={boxData}
 					/>
 
-					<ActionButton
-						isImageCaptured={isImageCaptured}
-						handleActionButtonClick={handleActionButtonClick}
-					/>
+					{isValidationSuccess === null ? (
+						<ActionButton
+							isImageCaptured={isImageCaptured}
+							handleActionButtonClick={handleActionButtonClick}
+						/>
+					) : (
+						<ValidationResult
+							isValidationSuccess={isValidationSuccess}
+							onRetry={resetProcess}
+						/>
+					)}
 				</div>
 			</div>
 		</BoxDataProvider>

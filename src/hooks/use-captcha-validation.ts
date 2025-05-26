@@ -8,6 +8,10 @@ export const useCaptchaValidation = () => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	const [isImageCaptured, setIsImageCaptured] = useState<boolean>(false);
+	const [isValidationSuccess, setIsValidationSuccess] = useState<
+		boolean | null
+	>(null);
+
 	const [boxData, setBoxData] = useState<Array2D<number>>([]);
 	const [targetShapeId, setTargetShapeId] = useState<number>(0);
 	const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
@@ -78,7 +82,7 @@ export const useCaptchaValidation = () => {
 			selectedPositions.length === targetedShapePositions.length &&
 			selectedPositions.every(isPositionInTargetedShapePositions);
 
-		console.log('isValid:::', isValid);
+		setIsValidationSuccess(isValid);
 	};
 
 	const handleBoxClick = (position: string) => {
@@ -89,6 +93,19 @@ export const useCaptchaValidation = () => {
 		}
 	};
 
+	const resetProcess = () => {
+		if (canvasRef.current) {
+			const contextOfCanvas = canvasRef.current.getContext('2d');
+			contextOfCanvas?.reset();
+		}
+
+		setIsImageCaptured(false);
+		setIsValidationSuccess(null);
+		setBoxData([]);
+		setTargetShapeId(0);
+		setSelectedPositions([]);
+	};
+
 	const providerValue = { selectedPositions, handleBoxClick };
 
 	return {
@@ -96,9 +113,11 @@ export const useCaptchaValidation = () => {
 		videoRef,
 		canvasRef,
 		isImageCaptured,
+		isValidationSuccess,
 		targetShapeId,
 		providerValue,
 		boxData,
 		handleActionButtonClick,
+		resetProcess,
 	};
 };

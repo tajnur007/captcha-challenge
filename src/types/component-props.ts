@@ -31,3 +31,8 @@ export interface ShapeBoxProps {
 	type: number;
 	position: string;
 }
+
+export interface ValidationResultProps {
+	isValidationSuccess: boolean;
+	onRetry: () => void;
+}
