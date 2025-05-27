@@ -12,7 +12,7 @@ function App() {
 		canvasRef,
 		isImageCaptured,
 		isValidationSuccess,
-		targetShapeId,
+		target,
 		providerValue,
 		boxData,
 		handleActionButtonClick,
@@ -25,7 +25,8 @@ function App() {
 				<div className="px-6 py-3 md:px-10 md:py-5 lg:px-12 lg:py-6 xl:px-16 xl:py-8 2xl:px-20 2xl:py-10 bg-white flex flex-col justify-center items-center">
 					<Instruction
 						isImageCaptured={isImageCaptured}
-						targetShapeId={targetShapeId}
+						targetShapeId={target?.type || 0}
+						targetColor={target?.color || 'text-red-500'}
 					/>
 
 					<CameraZone

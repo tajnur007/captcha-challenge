@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Array2D } from '../types/common';
-import { generateBoxData, generateRandomNumber } from '../utils/helpers';
+import type { Array2D, BoxData } from '../types/common';
+import { generateBoxData, getTarget, getTargetKeys } from '../utils/helpers';
 
 export const useCaptchaValidation = () => {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -12,8 +12,8 @@ export const useCaptchaValidation = () => {
 		boolean | null
 	>(null);
 
-	const [boxData, setBoxData] = useState<Array2D<number>>([]);
-	const [targetShapeId, setTargetShapeId] = useState<number>(0);
+	const [target, setTarget] = useState<BoxData | null>(null);
+	const [boxData, setBoxData] = useState<Array2D<BoxData>>([]);
 	const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
 
 	useEffect(() => {
@@ -59,28 +59,21 @@ export const useCaptchaValidation = () => {
 				videoHeight
 			);
 
+			const randomBoxData = generateBoxData();
+
 			setIsImageCaptured(true);
-			setBoxData(generateBoxData());
-			setTargetShapeId(generateRandomNumber(1, 3));
+			setBoxData(randomBoxData);
+			setTarget(getTarget(randomBoxData));
 		}
 	};
 
 	const handleValidateAction = () => {
-		const targetedShapePositions: string[] = [];
+		const targetKeys = getTargetKeys(boxData, target!);
+		const isPositionInTargetKeys = (pos: string) => targetKeys.includes(pos);
 
-		boxData.forEach((row, rowIdx) => {
-			row.forEach((col, colIdx) => {
-				if (col === targetShapeId) {
-					targetedShapePositions.push(rowIdx + ',' + colIdx);
-				}
-			});
-		});
-
-		const isPositionInTargetedShapePositions = (pos: string) =>
-			targetedShapePositions.includes(pos);
 		const isValid =
-			selectedPositions.length === targetedShapePositions.length &&
-			selectedPositions.every(isPositionInTargetedShapePositions);
+			selectedPositions.length === targetKeys.length &&
+			selectedPositions.every(isPositionInTargetKeys);
 
 		setIsValidationSuccess(isValid);
 	};
@@ -101,8 +94,8 @@ export const useCaptchaValidation = () => {
 
 		setIsImageCaptured(false);
 		setIsValidationSuccess(null);
+		setTarget(null);
 		setBoxData([]);
-		setTargetShapeId(0);
 		setSelectedPositions([]);
 	};
 
@@ -114,7 +107,7 @@ export const useCaptchaValidation = () => {
 		canvasRef,
 		isImageCaptured,
 		isValidationSuccess,
-		targetShapeId,
+		target,
 		providerValue,
 		boxData,
 		handleActionButtonClick,

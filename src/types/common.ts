@@ -4,3 +4,9 @@ export interface BoxDataContextValue {
 	selectedPositions: string[];
 	handleBoxClick: (position: string) => void;
 }
+
+export interface BoxData {
+	key: string;
+	type: number;
+	color: string;
+}

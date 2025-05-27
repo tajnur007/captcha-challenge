@@ -1,5 +1,5 @@
 import type { ReactNode, RefObject } from 'react';
-import type { Array2D, BoxDataContextValue } from './common';
+import type { Array2D, BoxData, BoxDataContextValue } from './common';
 
 export interface BoxDataProviderProps {
 	children: ReactNode;
@@ -9,13 +9,14 @@ export interface BoxDataProviderProps {
 export interface InstructionProps {
 	isImageCaptured: boolean;
 	targetShapeId: number;
+	targetColor: string;
 }
 
 export interface CameraZoneProps {
 	containerRef: RefObject<HTMLDivElement | null>;
 	videoRef: RefObject<HTMLVideoElement | null>;
 	canvasRef: RefObject<HTMLCanvasElement | null>;
-	boxData: Array2D<number>;
+	boxData: Array2D<BoxData>;
 }
 
 export interface ActionButtonProps {
@@ -24,13 +25,11 @@ export interface ActionButtonProps {
 }
 
 export interface SquareFrameProps {
-	boxData: Array2D<number>;
+	boxData: Array2D<BoxData>;
 }
 
 export interface ShapeBoxProps {
-	type: number;
-	shapeColor: string;
-	position: string;
+	data: BoxData;
 }
 
 export interface ValidationResultProps {
