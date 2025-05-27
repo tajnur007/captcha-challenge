@@ -79,10 +79,12 @@ export const useCaptchaValidation = () => {
 	};
 
 	const handleBoxClick = (position: string) => {
-		if (selectedPositions.includes(position)) {
-			setSelectedPositions((prev) => prev.filter((v) => v !== position));
-		} else {
-			setSelectedPositions((prev) => [...prev, position]);
+		if (isValidationSuccess === null) {
+			if (selectedPositions.includes(position)) {
+				setSelectedPositions((prev) => prev.filter((v) => v !== position));
+			} else {
+				setSelectedPositions((prev) => [...prev, position]);
+			}
 		}
 	};
 

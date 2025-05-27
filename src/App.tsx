@@ -43,7 +43,7 @@ function App() {
 						/>
 					) : (
 						<ValidationResult
-							isValidationSuccess={isValidationSuccess}
+							isSuccess={isValidationSuccess}
 							onRetry={resetProcess}
 						/>
 					)}

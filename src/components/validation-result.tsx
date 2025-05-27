@@ -1,23 +1,18 @@
 import type { ValidationResultProps } from '../types/component-props';
 
-function ValidationResult({
-	isValidationSuccess,
-	onRetry,
-}: ValidationResultProps) {
+function ValidationResult({ isSuccess, onRetry }: ValidationResultProps) {
+	const msgTextColor = isSuccess ? 'text-green-500' : 'text-red-500';
+	const message = `Verification ${isSuccess ? 'successful' : 'failed'}.`;
+	const nextInstruction = isSuccess ? 'Restart process?' : 'Try again';
+
 	return (
-		<p
-			className={`text-xl h-10 ${
-				isValidationSuccess ? 'text-green-500' : 'text-red-500'
-			}`}
-		>
-			{isValidationSuccess
-				? 'Verification successful.'
-				: 'Verification failed.'}{' '}
+		<p className={`text-xl h-10 ${msgTextColor}`}>
+			{message}{' '}
 			<span
 				className="text-blue-500 hover:underline cursor-pointer"
 				onClick={onRetry}
 			>
-				{isValidationSuccess ? 'Restart process?' : 'Try again'}
+				{nextInstruction}
 			</span>
 		</p>
 	);

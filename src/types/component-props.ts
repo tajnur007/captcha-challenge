@@ -33,6 +33,6 @@ export interface ShapeBoxProps {
 }
 
 export interface ValidationResultProps {
-	isValidationSuccess: boolean;
+	isSuccess: boolean;
 	onRetry: () => void;
 }
