@@ -1,4 +1,7 @@
-export const CONTEXT_DEFAULT_VALUE = {
+import type { BoxDataContextValue } from '../types/common';
+
+export const CONTEXT_DEFAULT_VALUE: BoxDataContextValue = {
+	isCaptchaValid: null,
 	selectedPositions: [],
 	handleBoxClick: () => null,
 };

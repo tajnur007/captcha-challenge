@@ -5,6 +5,7 @@ import ShapeBox from './shape-box';
 
 function SquareFrame({ boxData }: SquareFrameProps) {
 	const squareRef = useRef<HTMLDivElement>(null);
+	const frameBackground = boxData.length ? 'bg-[#ffffff55]' : '';
 
 	useEffect(() => {
 		const intervalRef = setInterval(() => {
@@ -28,9 +29,7 @@ function SquareFrame({ boxData }: SquareFrameProps) {
 	return (
 		<div
 			ref={squareRef}
-			className={`w-[162px] h-[162px] grid grid-cols-5 absolute top-10 left-10 z-20 border border-solid border-white ${
-				boxData.length ? 'bg-[#ffffff55]' : ''
-			}`}
+			className={`w-[162px] h-[162px] grid grid-cols-5 absolute top-10 left-10 z-20 border border-solid border-white ${frameBackground}`}
 		>
 			{boxData.map((row) => {
 				return (

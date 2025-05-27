@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Array2D, BoxData } from '../types/common';
+import type { Array2D, BoxData, BoxDataContextValue } from '../types/common';
 import { generateBoxData, getTarget, getTargetKeys } from '../utils/helpers';
 
 export const useCaptchaValidation = () => {
@@ -77,7 +77,7 @@ export const useCaptchaValidation = () => {
 	};
 
 	const handleBoxClick = (position: string) => {
-		if (setIsCaptchaValid === null) {
+		if (isCaptchaValid === null) {
 			if (selectedPositions.includes(position)) {
 				setSelectedPositions((prev) => prev.filter((v) => v !== position));
 			} else {
@@ -99,7 +99,11 @@ export const useCaptchaValidation = () => {
 		setSelectedPositions([]);
 	};
 
-	const providerValue = { selectedPositions, handleBoxClick };
+	const providerValue: BoxDataContextValue = {
+		isCaptchaValid,
+		selectedPositions,
+		handleBoxClick,
+	};
 
 	return {
 		containerRef,
