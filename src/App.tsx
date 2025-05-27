@@ -11,7 +11,7 @@ function App() {
 		videoRef,
 		canvasRef,
 		isImageCaptured,
-		isValidationSuccess,
+		isCaptchaValid,
 		target,
 		providerValue,
 		boxData,
@@ -36,14 +36,14 @@ function App() {
 						boxData={boxData}
 					/>
 
-					{isValidationSuccess === null ? (
+					{isCaptchaValid === null ? (
 						<ActionButton
 							isImageCaptured={isImageCaptured}
 							handleActionButtonClick={handleActionButtonClick}
 						/>
 					) : (
 						<ValidationResult
-							isSuccess={isValidationSuccess}
+							isSuccess={isCaptchaValid}
 							onRetry={resetProcess}
 						/>
 					)}

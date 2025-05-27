@@ -8,9 +8,7 @@ export const useCaptchaValidation = () => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	const [isImageCaptured, setIsImageCaptured] = useState<boolean>(false);
-	const [isValidationSuccess, setIsValidationSuccess] = useState<
-		boolean | null
-	>(null);
+	const [isCaptchaValid, setIsCaptchaValid] = useState<boolean | null>(null);
 
 	const [target, setTarget] = useState<BoxData | null>(null);
 	const [boxData, setBoxData] = useState<Array2D<BoxData>>([]);
@@ -75,11 +73,11 @@ export const useCaptchaValidation = () => {
 			selectedPositions.length === targetKeys.length &&
 			selectedPositions.every(isPositionInTargetKeys);
 
-		setIsValidationSuccess(isValid);
+		setIsCaptchaValid(isValid);
 	};
 
 	const handleBoxClick = (position: string) => {
-		if (isValidationSuccess === null) {
+		if (setIsCaptchaValid === null) {
 			if (selectedPositions.includes(position)) {
 				setSelectedPositions((prev) => prev.filter((v) => v !== position));
 			} else {
@@ -95,7 +93,7 @@ export const useCaptchaValidation = () => {
 		}
 
 		setIsImageCaptured(false);
-		setIsValidationSuccess(null);
+		setIsCaptchaValid(null);
 		setTarget(null);
 		setBoxData([]);
 		setSelectedPositions([]);
@@ -108,7 +106,7 @@ export const useCaptchaValidation = () => {
 		videoRef,
 		canvasRef,
 		isImageCaptured,
-		isValidationSuccess,
+		isCaptchaValid,
 		target,
 		providerValue,
 		boxData,
