@@ -7,6 +7,7 @@ function SquareFrame({ boxData }: SquareFrameProps) {
 	const squareRef = useRef<HTMLDivElement>(null);
 	const frameBackground = boxData.length ? 'bg-[#ffffff55]' : '';
 
+	// Generating random position for the square frame every 3 seconds
 	useEffect(() => {
 		const intervalRef = setInterval(() => {
 			if (squareRef.current && !boxData.length) {

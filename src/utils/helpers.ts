@@ -1,6 +1,9 @@
 import type { Array2D, BoxData } from '../types/common';
 import { SHAPE_COLORS } from './constants';
 
+/**
+ * Generates a 5x5 grid of box data with random shapes and colors
+ */
 export function generateBoxData(): Array2D<BoxData> {
 	// Initializing 5 x 5 array with initial color and shape type
 	const data: Array2D<BoxData> = [];
@@ -43,10 +46,16 @@ export function generateBoxData(): Array2D<BoxData> {
 	return data;
 }
 
+/**
+ * Generates a random number between min and max
+ */
 export function generateRandomNumber(min = 0, max = 4): number {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+/**
+ * Gets a random target box data from the box data
+ */
 export function getTarget(boxData: Array2D<BoxData>): BoxData {
 	let rowIdx = generateRandomNumber();
 	let colIdx = generateRandomNumber();
@@ -60,6 +69,9 @@ export function getTarget(boxData: Array2D<BoxData>): BoxData {
 	return boxData[rowIdx][colIdx];
 }
 
+/**
+ * Gets the keys of the target box data from the box data
+ */
 export function getTargetKeys(
 	boxData: Array2D<BoxData>,
 	target: BoxData

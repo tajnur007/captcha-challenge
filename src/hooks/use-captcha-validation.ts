@@ -3,17 +3,21 @@ import type { Array2D, BoxData, BoxDataContextValue } from '../types/common';
 import { generateBoxData, getTarget, getTargetKeys } from '../utils/helpers';
 
 export const useCaptchaValidation = () => {
+	// Refs for DOM elements
 	const containerRef = useRef<HTMLDivElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
+	// State management
 	const [isImageCaptured, setIsImageCaptured] = useState<boolean>(false);
 	const [isCaptchaValid, setIsCaptchaValid] = useState<boolean | null>(null);
-
 	const [target, setTarget] = useState<BoxData | null>(null);
 	const [boxData, setBoxData] = useState<Array2D<BoxData>>([]);
 	const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
 
+	/**
+	 * Initialize webcam stream on component mount
+	 */
 	useEffect(() => {
 		navigator.mediaDevices
 			.getUserMedia({ video: true })
@@ -28,6 +32,9 @@ export const useCaptchaValidation = () => {
 			});
 	}, []);
 
+	/**
+	 * Handles the main action button click based on current state
+	 */
 	const handleActionButtonClick = () => {
 		if (isImageCaptured) {
 			handleValidateAction();
@@ -36,6 +43,9 @@ export const useCaptchaValidation = () => {
 		}
 	};
 
+	/**
+	 * Handles the image capture process and initializes the captcha challenge
+	 */
 	const handleContinueAction = () => {
 		if (containerRef.current && videoRef.current && canvasRef.current) {
 			canvasRef.current.setAttribute(
@@ -65,6 +75,9 @@ export const useCaptchaValidation = () => {
 		}
 	};
 
+	/**
+	 * Validates the user's selected positions against the target positions
+	 */
 	const handleValidateAction = () => {
 		const targetKeys = getTargetKeys(boxData, target!);
 		const isPositionInTargetKeys = (pos: string) => targetKeys.includes(pos);
@@ -76,6 +89,9 @@ export const useCaptchaValidation = () => {
 		setIsCaptchaValid(isValid);
 	};
 
+	/**
+	 * Handles box selection/deselection during the challenge
+	 */
 	const handleBoxClick = (position: string) => {
 		if (isCaptchaValid === null) {
 			if (selectedPositions.includes(position)) {
@@ -86,6 +102,9 @@ export const useCaptchaValidation = () => {
 		}
 	};
 
+	/**
+	 * Resets the entire captcha process to its initial state
+	 */
 	const resetProcess = () => {
 		if (canvasRef.current) {
 			const contextOfCanvas = canvasRef.current.getContext('2d');
@@ -99,6 +118,7 @@ export const useCaptchaValidation = () => {
 		setSelectedPositions([]);
 	};
 
+	// Context provider value
 	const providerValue: BoxDataContextValue = {
 		isCaptchaValid,
 		selectedPositions,
