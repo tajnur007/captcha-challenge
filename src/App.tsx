@@ -10,6 +10,7 @@ function App() {
 		containerRef,
 		videoRef,
 		canvasRef,
+		isPermissionGranted,
 		isImageCaptured,
 		isCaptchaValid,
 		target,
@@ -18,6 +19,14 @@ function App() {
 		handleActionButtonClick,
 		resetProcess,
 	} = useCaptchaValidation();
+
+	if (!isPermissionGranted) {
+		return (
+			<div className="w-screen h-screen overflow-hidden flex justify-center items-center bg-[#16295d] text-white text-2xl">
+				Please allow camera permission.
+			</div>
+		);
+	}
 
 	return (
 		<BoxDataProvider value={providerValue}>

@@ -9,6 +9,8 @@ export const useCaptchaValidation = () => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	// State management
+	const [isPermissionGranted, setIsPermissionGranted] =
+		useState<boolean>(false);
 	const [isImageCaptured, setIsImageCaptured] = useState<boolean>(false);
 	const [isCaptchaValid, setIsCaptchaValid] = useState<boolean | null>(null);
 	const [target, setTarget] = useState<BoxData | null>(null);
@@ -26,11 +28,15 @@ export const useCaptchaValidation = () => {
 					videoRef.current.srcObject = stream;
 					videoRef.current.play();
 				}
+
+				if (!isPermissionGranted) {
+					setIsPermissionGranted(true);
+				}
 			})
 			.catch((error) => {
 				console.error('Facing issue while trying to access the webcam!', error);
 			});
-	}, []);
+	}, [isPermissionGranted]);
 
 	/**
 	 * Handles the main action button click based on current state
@@ -129,6 +135,7 @@ export const useCaptchaValidation = () => {
 		containerRef,
 		videoRef,
 		canvasRef,
+		isPermissionGranted,
 		isImageCaptured,
 		isCaptchaValid,
 		target,
